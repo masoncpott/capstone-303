@@ -1,0 +1,13 @@
+{
+  "name": "capstone-303",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "dev:server": "tsx watch server/index.ts",
+    "build:server": "tsc -p server/tsconfig.json"
+  }
+}
