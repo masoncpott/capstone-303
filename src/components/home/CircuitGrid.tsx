@@ -1,18 +1,28 @@
 import { Grid } from '@mui/material';
 import { CircuitBreakerCard } from './CircuitBreakerCard';
 
-const placeholderCircuits = [
-  { circuitId: 'ev-charger', name: 'EV Charger', status: 'On', draw: '7.2 kW' },
-  { circuitId: 'hvac', name: 'HVAC', status: 'Off', draw: '0.0 kW' },
-  { circuitId: 'water-heater', name: 'Water Heater', status: 'Scheduled', draw: '4.1 kW' },
-];
+type CircuitGridItem = {
+  id: string;
+  name: string;
+  status: string;
+  currentWatts: number;
+};
 
-export function CircuitGrid() {
+type CircuitGridProps = {
+  circuits: CircuitGridItem[];
+};
+
+export function CircuitGrid({ circuits }: CircuitGridProps) {
   return (
     <Grid container spacing={2}>
-      {placeholderCircuits.map((circuit) => (
-        <Grid key={circuit.name} size={{ xs: 12, sm: 6 }}>
-          <CircuitBreakerCard {...circuit} />
+      {circuits.map((circuit) => (
+        <Grid key={circuit.id} size={{ xs: 12, sm: 6 }}>
+          <CircuitBreakerCard
+            circuitId={circuit.id}
+            name={circuit.name}
+            status={circuit.status}
+            draw={`${(circuit.currentWatts / 1000).toFixed(1)} kW`}
+          />
         </Grid>
       ))}
     </Grid>
