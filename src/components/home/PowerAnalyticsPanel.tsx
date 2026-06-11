@@ -45,7 +45,12 @@ type PricingPeriod = {
 };
 
 function getCurrentHourLabel(timestamp: string) {
-  return new Date(timestamp).getHours().toString().padStart(2, '0') + ':00';
+  const date = new Date(timestamp);
+  return date.toLocaleDateString() + ' ' + date.getUTCHours().toString().padStart(2, '0') + ':00';
+}
+
+function getHourOnly(timestamp: string) {
+  return new Date(timestamp).getUTCHours().toString().padStart(2, '0') + ':00';
 }
 
 function getCurrentRatePeriod(periods: PricingPeriod[]) {
@@ -71,17 +76,27 @@ export function PowerAnalyticsPanel() {
   const analytics = useMemo(() => {
     const totalUsage = circuits.reduce((sum, circuit) => sum + circuit.currentWatts, 0);
     const currentRatePeriod = getCurrentRatePeriod(pricingPeriods);
-    const hourlyUsageMap = new Map<string, number>();
+    
+    // Group usage history by timestamp to get total household usage per hour
+    const hourlyTotalsMap = new Map<string, number>();
     const circuitUsageMap = new Map<string, number>();
 
     for (const point of usageHistory) {
-      const hourLabel = getCurrentHourLabel(point.timestamp);
-      hourlyUsageMap.set(hourLabel, (hourlyUsageMap.get(hourLabel) ?? 0) + point.watts);
+      const fullLabel = getCurrentHourLabel(point.timestamp);
+      hourlyTotalsMap.set(fullLabel, (hourlyTotalsMap.get(fullLabel) ?? 0) + point.watts);
       circuitUsageMap.set(point.circuitId, (circuitUsageMap.get(point.circuitId) ?? 0) + point.watts);
     }
 
-    const hourlyLabels = Array.from(hourlyUsageMap.keys()).slice(0, 12).reverse();
-    const hourlyValues = hourlyLabels.map((label) => hourlyUsageMap.get(label) ?? 0);
+    // Get the last 24 hours of data, sorted chronologically
+    const recentHours = Array.from(hourlyTotalsMap.entries())
+      .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
+      .slice(-24);
+    
+    const hourlyLabels = recentHours.map((entry) => {
+      const date = new Date(entry[0]);
+      return `${date.getUTCHours().toString().padStart(2, '0')}:00`;
+    });
+    const hourlyValues = recentHours.map((entry) => entry[1]);
 
     const topCircuits = circuits
       .map((circuit) => ({
