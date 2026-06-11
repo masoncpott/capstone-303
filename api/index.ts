@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -11,10 +11,16 @@ let dbData: any;
 function getDb() {
   if (!dbData) {
     try {
-      const dbPath = resolve(__dirname, '../db.json');
+      const dbPathCandidates = [resolve(process.cwd(), 'db.json'), resolve(__dirname, '../db.json')];
+      const dbPath = dbPathCandidates.find((candidate) => existsSync(candidate));
+
+      if (!dbPath) {
+        throw new Error(`db.json not found. Checked: ${dbPathCandidates.join(', ')}`);
+      }
+
       const content = readFileSync(dbPath, 'utf-8');
       dbData = JSON.parse(content);
-      console.log('[API] Database loaded');
+      console.log(`[API] Database loaded from ${dbPath}`);
     } catch (error) {
       console.error('[API] Error loading db.json:', error);
       throw error;
