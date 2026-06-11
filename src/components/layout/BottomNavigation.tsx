@@ -1,4 +1,4 @@
-import { BatteryChargingFull, Home, Insights } from '@mui/icons-material';
+import { BatteryChargingFull, Home, Info } from '@mui/icons-material';
 import { BottomNavigation as MuiBottomNavigation, BottomNavigationAction, Paper } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -6,7 +6,14 @@ export function BottomNavigation() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const value = location.pathname.startsWith('/circuits') ? 'circuits' : 'home';
+  let value: string;
+  if (location.pathname === '/about') {
+    value = 'about';
+  } else if (location.pathname.startsWith('/circuits')) {
+    value = 'circuits';
+  } else {
+    value = 'home';
+  }
 
   return (
     <Paper sx={{ position: 'fixed', left: 0, right: 0, bottom: 0 }} elevation={8}>
@@ -18,7 +25,7 @@ export function BottomNavigation() {
           icon={<BatteryChargingFull />}
           onClick={() => navigate('/circuits')}
         />
-        <BottomNavigationAction label="Analytics" value="analytics" icon={<Insights />} disabled />
+        <BottomNavigationAction label="About" value="about" icon={<Info />} onClick={() => navigate('/about')} />
       </MuiBottomNavigation>
     </Paper>
   );

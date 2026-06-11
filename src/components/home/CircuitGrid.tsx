@@ -13,6 +13,8 @@ type CircuitGridProps = {
 };
 
 export function CircuitGrid({ circuits }: CircuitGridProps) {
+  const totalWatts = circuits.reduce((sum, circuit) => sum + circuit.currentWatts, 0);
+
   return (
     <Grid container spacing={2}>
       {circuits.map((circuit) => (
@@ -22,6 +24,7 @@ export function CircuitGrid({ circuits }: CircuitGridProps) {
             name={circuit.name}
             status={circuit.status}
             draw={`${(circuit.currentWatts / 1000).toFixed(1)} kW`}
+            consumptionPercentage={totalWatts > 0 ? (circuit.currentWatts / totalWatts) * 100 : 0}
           />
         </Grid>
       ))}

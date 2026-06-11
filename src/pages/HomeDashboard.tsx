@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 import { PageContainer } from '../components/layout/PageContainer';
 import { RateStatusBanner } from '../components/home/RateStatusBanner';
 import { SummaryCard } from '../components/home/SummaryCard';
-import { QuickActions } from '../components/home/QuickActions';
 import { CircuitGrid } from '../components/home/CircuitGrid';
 import { PowerAnalyticsPanel } from '../components/home/PowerAnalyticsPanel';
 import mockData from '../data/mockData.json';
@@ -66,7 +65,6 @@ export function HomeDashboard() {
         />
       </Stack>
 
-      <QuickActions />
       <CircuitGrid circuits={circuits} />
       <PowerAnalyticsPanel />
     </PageContainer>

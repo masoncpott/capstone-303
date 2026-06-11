@@ -182,10 +182,9 @@ export function PowerAnalyticsPanel() {
   return (
     <Card 
     variant="outlined" 
-    sx={{ pb: { xs: 4, sm: 8 } }}
     >
       <CardContent>
-        {/* <Stack> */}
+        <Stack sx={{ pb: { xs: 4, sm: 8 } }} spacing={4}>
           <div>
             <Typography variant="h6" sx={{ fontWeight: 700 }} gutterBottom>
               {powerAnalyticsConfig.panel.title}
@@ -232,7 +231,7 @@ export function PowerAnalyticsPanel() {
               data={doughnutData}
             />
           </Stack>
-        {/* </Stack> */}
+        </Stack>
       </CardContent>
     </Card>
   );

@@ -6,9 +6,10 @@ type CircuitBreakerCardProps = {
   name: string;
   status: string;
   draw: string;
+  consumptionPercentage: number;
 };
 
-export function CircuitBreakerCard({ circuitId, name, status, draw }: CircuitBreakerCardProps) {
+export function CircuitBreakerCard({ circuitId, name, status, draw, consumptionPercentage }: CircuitBreakerCardProps) {
   const navigate = useNavigate();
 
   return (
@@ -22,6 +23,9 @@ export function CircuitBreakerCard({ circuitId, name, status, draw }: CircuitBre
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Current draw: {draw}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Current power consumption: {consumptionPercentage.toFixed(1)}%
             </Typography>
           </Stack>
         </CardContent>
