@@ -1,4 +1,7 @@
 import express from 'express';
+import { existsSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { initializeDatabase } from './db.js';
 import { circuitsRouter } from './routes/circuits.js';
 import { modesRouter } from './routes/modes.js';
@@ -8,6 +11,12 @@ import { usageRouter } from './routes/usage.js';
 
 const app = express();
 const port = Number(process.env.PORT ?? 3001);
+const currentDir = dirname(fileURLToPath(import.meta.url));
+const distFromCompiledServer = resolve(currentDir, '..');
+const distFromSourceServer = resolve(currentDir, '..', 'dist');
+const frontendDistDir = existsSync(resolve(distFromCompiledServer, 'index.html'))
+  ? distFromCompiledServer
+  : distFromSourceServer;
 
 app.use(express.json());
 
@@ -20,6 +29,14 @@ app.use('/api/usage', usageRouter);
 app.use('/api/pricing-periods', pricingRouter);
 app.use('/api/schedules', schedulesRouter);
 app.use('/api/modes', modesRouter);
+
+if (existsSync(resolve(frontendDistDir, 'index.html'))) {
+  app.use(express.static(frontendDistDir));
+
+  app.get(/^(?!\/api|\/health).*/, (_request, response) => {
+    response.sendFile(resolve(frontendDistDir, 'index.html'));
+  });
+}
 
 async function bootstrap() {
   await initializeDatabase();
