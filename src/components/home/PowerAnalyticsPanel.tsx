@@ -5,7 +5,6 @@ import {
   Grid,
   Stack,
   Typography,
-  Chip,
 } from '@mui/material';
 import type { ChartOptions } from 'chart.js';
 import mockData from '../../data/mockData.json';
@@ -150,7 +149,6 @@ export function PowerAnalyticsPanel() {
 
   const lineChartOptions: ChartOptions<'line'> = sharedLineChartOptions;
   const barChartOptions: ChartOptions<'bar'> = { responsive: true, maintainAspectRatio: false, indexAxis: 'y' };
-  const doughnutChartOptions: ChartOptions<'doughnut'> = { responsive: true, maintainAspectRatio: false };
 
   const summaryCardResolvers: Record<
     SummaryCardConfigKey,
@@ -182,9 +180,9 @@ export function PowerAnalyticsPanel() {
   }));
 
   return (
-    <Card variant="outlined">
+    <Card variant="outlined" sx={{ pb: 8 }}>
       <CardContent>
-        <Stack spacing={2}>
+        <Stack spacing={3}>
           <div>
             <Typography variant="h6" sx={{ fontWeight: 700 }} gutterBottom>
               {powerAnalyticsConfig.panel.title}
@@ -223,18 +221,7 @@ export function PowerAnalyticsPanel() {
               title={powerAnalyticsConfig.sections.shareOfTotalConsumption}
               subtitle={activeRangeTitle}
               data={doughnutData}
-              options={doughnutChartOptions}
             />
-          </Stack>
-
-          <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
-            {analytics.topCircuits.map((circuit) => (
-              <Chip
-                key={circuit.id}
-                label={`${circuit.name} • ${(circuit.usage / 1000).toFixed(1)} kW`}
-                variant="outlined"
-              />
-            ))}
           </Stack>
         </Stack>
       </CardContent>
