@@ -39,9 +39,12 @@ type ScheduleItem = {
 export function CircuitDetailPage() {
   const { circuitId } = useParams();
   const [circuit, setCircuit] = useState<Circuit | null>(null);
+  const [editableName, setEditableName] = useState('');
   const [usageHistory, setUsageHistory] = useState<UsagePoint[]>([]);
   const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [savingName, setSavingName] = useState(false);
+  const [toggling, setToggling] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -69,6 +72,7 @@ export function CircuitDetailPage() {
 
         if (!cancelled) {
           setCircuit(circuitPayload.circuit);
+          setEditableName(circuitPayload.circuit.name);
           setUsageHistory(usagePayload.usageHistory);
           setSchedules(schedulePayload.schedules);
         }
@@ -85,6 +89,75 @@ export function CircuitDetailPage() {
       cancelled = true;
     };
   }, [circuitId]);
+
+  async function saveCircuitName() {
+    if (!circuit || !circuitId) {
+      return;
+    }
+
+    const trimmedName = editableName.trim();
+
+    if (trimmedName.length === 0) {
+      return;
+    }
+
+    setSavingName(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/circuits/${circuitId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: trimmedName }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Unable to save circuit name.');
+      }
+
+      const payload = (await response.json()) as { circuit: Circuit };
+      setCircuit(payload.circuit);
+      setEditableName(payload.circuit.name);
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : 'Unable to save circuit name.');
+    } finally {
+      setSavingName(false);
+    }
+  }
+
+  async function toggleCircuitStatus() {
+    if (!circuit || !circuitId) {
+      return;
+    }
+
+    const nextStatus = circuit.status === 'on' ? 'off' : 'on';
+
+    setToggling(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/circuits/${circuitId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Unable to update circuit status.');
+      }
+
+      const payload = (await response.json()) as { circuit: Circuit };
+      setCircuit(payload.circuit);
+    } catch (toggleError) {
+      setError(toggleError instanceof Error ? toggleError.message : 'Unable to update circuit status.');
+    } finally {
+      setToggling(false);
+    }
+  }
 
   const insights = circuit
     ? [
@@ -123,8 +196,12 @@ export function CircuitDetailPage() {
             category={circuit.category}
             status={circuit.status}
             room={circuit.room}
+            editableName={editableName}
+            onEditableNameChange={setEditableName}
+            onSaveName={saveCircuitName}
+            savingName={savingName}
           />
-          <CircuitToggleControl status={circuit.status} />
+          <CircuitToggleControl status={circuit.status} onToggle={toggleCircuitStatus} toggling={toggling} />
           <CircuitUsageChart usageHistory={usageHistory} />
           <CircuitScheduleEditor schedules={schedules} />
           <CircuitInsightsCard insights={insights} />

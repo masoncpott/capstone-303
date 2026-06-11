@@ -2,9 +2,11 @@ import { Button, Card, CardContent, Stack, Typography } from '@mui/material';
 
 type CircuitToggleControlProps = {
   status: string;
+  onToggle: () => void;
+  toggling: boolean;
 };
 
-export function CircuitToggleControl({ status }: CircuitToggleControlProps) {
+export function CircuitToggleControl({ status, onToggle, toggling }: CircuitToggleControlProps) {
   return (
     <Card variant="outlined">
       <CardContent>
@@ -15,8 +17,8 @@ export function CircuitToggleControl({ status }: CircuitToggleControlProps) {
           <Typography variant="body2" color="text.secondary">
             Current state: {status}
           </Typography>
-          <Button variant="contained" fullWidth>
-            Toggle Circuit
+          <Button variant="contained" fullWidth onClick={onToggle} disabled={toggling}>
+            {toggling ? 'Updating...' : 'Toggle Circuit'}
           </Button>
         </Stack>
       </CardContent>
