@@ -9,7 +9,7 @@ import { PowerAnalyticsPanel } from '../components/home/PowerAnalyticsPanel';
 export function HomeDashboard() {
   return (
     <PageContainer>
-      <Typography variant="h5" fontWeight={800}>
+      <Typography variant="h5" sx={{ fontWeight: 800 }}>
         Home Dashboard
       </Typography>
       <RateStatusBanner />

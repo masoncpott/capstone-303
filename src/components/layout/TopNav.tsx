@@ -8,7 +8,7 @@ export function TopNav() {
           <Typography variant="overline" color="text.secondary">
             Smart Panel
           </Typography>
-          <Typography variant="h6" fontWeight={700}>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
             Home Energy
           </Typography>
         </Box>

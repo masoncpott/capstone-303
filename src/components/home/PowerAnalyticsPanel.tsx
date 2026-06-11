@@ -4,7 +4,7 @@ export function PowerAnalyticsPanel() {
   return (
     <Card variant="outlined">
       <CardContent>
-        <Typography variant="h6" fontWeight={700} gutterBottom>
+        <Typography variant="h6" sx={{ fontWeight: 700 }} gutterBottom>
           Power Analytics
         </Typography>
         <Box

@@ -2,9 +2,9 @@ import { Grid } from '@mui/material';
 import { CircuitBreakerCard } from './CircuitBreakerCard';
 
 const placeholderCircuits = [
-  { name: 'EV Charger', status: 'On', draw: '7.2 kW' },
-  { name: 'HVAC', status: 'Off', draw: '0.0 kW' },
-  { name: 'Water Heater', status: 'Scheduled', draw: '4.1 kW' },
+  { circuitId: 'ev-charger', name: 'EV Charger', status: 'On', draw: '7.2 kW' },
+  { circuitId: 'hvac', name: 'HVAC', status: 'Off', draw: '0.0 kW' },
+  { circuitId: 'water-heater', name: 'Water Heater', status: 'Scheduled', draw: '4.1 kW' },
 ];
 
 export function CircuitGrid() {

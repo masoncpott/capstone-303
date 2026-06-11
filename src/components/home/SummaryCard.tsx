@@ -13,7 +13,7 @@ export function SummaryCard({ title, value, subtitle }: SummaryCardProps) {
         <Typography variant="overline" color="text.secondary">
           {title}
         </Typography>
-        <Typography variant="h5" fontWeight={700}>
+        <Typography variant="h5" sx={{ fontWeight: 700 }}>
           {value}
         </Typography>
         {subtitle ? (
