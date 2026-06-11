@@ -204,26 +204,28 @@ export function PowerAnalyticsPanel() {
 
           <ChartTimeframeSelector value={selectedTimeframe} onChange={setSelectedTimeframe} />
 
-          <HouseholdPowerChart
-            title={powerAnalyticsConfig.sections.householdPowerOverTime}
-            subtitle={activeRangeTitle}
-            data={lineChartData}
-            options={lineChartOptions}
-          />
+          <Stack spacing={8}>
+            <HouseholdPowerChart
+              title={powerAnalyticsConfig.sections.householdPowerOverTime}
+              subtitle={activeRangeTitle}
+              data={lineChartData}
+              options={lineChartOptions}
+            />
 
-          <HighestUsageBarChart
-            title={powerAnalyticsConfig.sections.highestUsageCircuits}
-            subtitle={activeRangeTitle}
-            data={barChartData}
-            options={barChartOptions}
-          />
+            <HighestUsageBarChart
+              title={powerAnalyticsConfig.sections.highestUsageCircuits}
+              subtitle={activeRangeTitle}
+              data={barChartData}
+              options={barChartOptions}
+            />
 
-          <ConsumptionShareChart
-            title={powerAnalyticsConfig.sections.shareOfTotalConsumption}
-            subtitle={activeRangeTitle}
-            data={doughnutData}
-            options={doughnutChartOptions}
-          />
+            <ConsumptionShareChart
+              title={powerAnalyticsConfig.sections.shareOfTotalConsumption}
+              subtitle={activeRangeTitle}
+              data={doughnutData}
+              options={doughnutChartOptions}
+            />
+          </Stack>
 
           <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
             {analytics.topCircuits.map((circuit) => (
