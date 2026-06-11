@@ -11,15 +11,14 @@ type HighestUsageBarChartProps = {
 };
 
 const chartBoxSx = {
-  minHeight: 240,
-  height: 'min(50vh, 800px)',
-  maxHeight: 800,
-  marginBottom: 4
+  minHeight: 180,
+  height: 280,
+  maxHeight: 320,
 };
 
 export function HighestUsageBarChart({ title, subtitle, data, options }: HighestUsageBarChartProps) {
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={chartBoxSx}>
       <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
         {title}
       </Typography>

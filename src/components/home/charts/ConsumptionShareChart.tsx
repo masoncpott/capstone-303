@@ -11,10 +11,9 @@ type ConsumptionShareChartProps = {
 };
 
 const chartBoxSx = {
-  minHeight: 260,
-  height: 'min(50vh, 800px)',
-  maxHeight: 800,
-  marginBottom: 4
+  minHeight: 180,
+  height: 300,
+  maxHeight: 340,
 };
 
 export function ConsumptionShareChart({ title, subtitle, data, options }: ConsumptionShareChartProps) {
