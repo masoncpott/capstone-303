@@ -206,11 +206,11 @@ export function PowerAnalyticsPanel() {
           <ChartTimeframeSelector value={selectedTimeframe} onChange={setSelectedTimeframe} />
 
           <Stack 
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between'
-          }}
+          // sx={{
+          //   display: 'flex',
+          //   flexDirection: 'column',
+          //   justifyContent: 'space-between'
+          // }}
           >
             <HouseholdPowerChart
               title={powerAnalyticsConfig.sections.householdPowerOverTime}
