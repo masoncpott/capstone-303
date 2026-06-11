@@ -1,30 +1,19 @@
-import { randomUUID } from 'node:crypto';
 import { Router } from 'express';
-import type { Schedule } from '../types';
+import { createSchedule, listSchedules, listSchedulesByCircuit } from '../db.js';
 
 export const schedulesRouter = Router();
 
-const schedules: Schedule[] = [];
-
-schedulesRouter.get('/', (_request, response) => {
+schedulesRouter.get('/', async (_request, response) => {
+  const schedules = await listSchedules();
   response.json({ schedules });
 });
 
-schedulesRouter.get('/circuit/:circuitId', (request, response) => {
-  const items = schedules.filter((schedule) => schedule.circuitId === request.params.circuitId);
+schedulesRouter.get('/circuit/:circuitId', async (request, response) => {
+  const items = await listSchedulesByCircuit(request.params.circuitId);
   response.json({ schedules: items });
 });
 
-schedulesRouter.post('/', (request, response) => {
-  const schedule = {
-    id: randomUUID(),
-    circuitId: request.body?.circuitId ?? 'unknown',
-    dayOfWeek: request.body?.dayOfWeek ?? 1,
-    startTime: request.body?.startTime ?? '00:00',
-    endTime: request.body?.endTime ?? '00:00',
-    enabled: request.body?.enabled ?? true,
-  } satisfies Schedule;
-
-  schedules.push(schedule);
+schedulesRouter.post('/', async (request, response) => {
+  const schedule = await createSchedule(request.body ?? {});
   response.status(201).json({ schedule });
 });

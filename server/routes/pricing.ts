@@ -1,24 +1,14 @@
-import { randomUUID } from 'node:crypto';
 import { Router } from 'express';
-import type { PricingPeriod } from '../types';
+import { createPricingPeriod, listPricingPeriods } from '../db.js';
 
 export const pricingRouter = Router();
 
-const pricingPeriods: PricingPeriod[] = [];
-
-pricingRouter.get('/', (_request, response) => {
+pricingRouter.get('/', async (_request, response) => {
+  const pricingPeriods = await listPricingPeriods();
   response.json({ pricingPeriods });
 });
 
-pricingRouter.post('/', (request, response) => {
-  const pricingPeriod = {
-    id: randomUUID(),
-    startTime: request.body?.startTime ?? '00:00',
-    endTime: request.body?.endTime ?? '00:00',
-    rateType: request.body?.rateType ?? 'off_peak',
-    pricePerKwh: request.body?.pricePerKwh ?? 0,
-  } satisfies PricingPeriod;
-
-  pricingPeriods.push(pricingPeriod);
+pricingRouter.post('/', async (request, response) => {
+  const pricingPeriod = await createPricingPeriod(request.body ?? {});
   response.status(201).json({ pricingPeriod });
 });

@@ -1,29 +1,19 @@
-import { randomUUID } from 'node:crypto';
 import { Router } from 'express';
-import type { UsageHistoryPoint } from '../types';
+import { createUsageHistoryPoint, listUsageHistory, listUsageHistoryByCircuit } from '../db.js';
 
 export const usageRouter = Router();
 
-const usageHistory: UsageHistoryPoint[] = [];
-
-usageRouter.get('/', (_request, response) => {
+usageRouter.get('/', async (_request, response) => {
+  const usageHistory = await listUsageHistory();
   response.json({ usageHistory });
 });
 
-usageRouter.get('/circuit/:circuitId', (request, response) => {
-  const points = usageHistory.filter((point) => point.circuitId === request.params.circuitId);
+usageRouter.get('/circuit/:circuitId', async (request, response) => {
+  const points = await listUsageHistoryByCircuit(request.params.circuitId);
   response.json({ usageHistory: points });
 });
 
-usageRouter.post('/', (request, response) => {
-  const point = {
-    id: randomUUID(),
-    circuitId: request.body?.circuitId ?? 'unknown',
-    timestamp: request.body?.timestamp ?? new Date().toISOString(),
-    watts: request.body?.watts ?? 0,
-    estimatedCost: request.body?.estimatedCost ?? 0,
-  } satisfies UsageHistoryPoint;
-
-  usageHistory.push(point);
+usageRouter.post('/', async (request, response) => {
+  const point = await createUsageHistoryPoint(request.body ?? {});
   response.status(201).json({ usageHistoryPoint: point });
 });

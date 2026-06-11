@@ -1,23 +1,14 @@
-import { randomUUID } from 'node:crypto';
 import { Router } from 'express';
-import type { Mode } from '../types';
+import { createMode, listModes } from '../db.js';
 
 export const modesRouter = Router();
 
-const modes: Mode[] = [];
-
-modesRouter.get('/', (_request, response) => {
+modesRouter.get('/', async (_request, response) => {
+  const modes = await listModes();
   response.json({ modes });
 });
 
-modesRouter.post('/', (request, response) => {
-  const mode = {
-    id: randomUUID(),
-    modeName: request.body?.modeName ?? 'Normal Mode',
-    affectedCircuits: Array.isArray(request.body?.affectedCircuits) ? request.body.affectedCircuits : [],
-    description: request.body?.description ?? '',
-  } satisfies Mode;
-
-  modes.push(mode);
+modesRouter.post('/', async (request, response) => {
+  const mode = await createMode(request.body ?? {});
   response.status(201).json({ mode });
 });
