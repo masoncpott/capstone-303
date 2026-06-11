@@ -180,9 +180,9 @@ export function PowerAnalyticsPanel() {
   }));
 
   return (
-    <Card variant="outlined" sx={{ pb: 8 }}>
+    <Card variant="outlined" sx={{ pb: { xs: 4, sm: 8 } }}>
       <CardContent>
-        <Stack spacing={3}>
+        <Stack spacing={4}>
           <div>
             <Typography variant="h6" sx={{ fontWeight: 700 }} gutterBottom>
               {powerAnalyticsConfig.panel.title}
