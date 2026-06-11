@@ -47,7 +47,7 @@ export function HomeDashboard() {
   return (
     <PageContainer>
       <Typography variant="h5" sx={{ fontWeight: 800 }}>
-        Home Dashboard
+        Home Energy Dashboard
       </Typography>
 
       <RateStatusBanner

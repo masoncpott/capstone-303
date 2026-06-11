@@ -6,14 +6,11 @@ export function TopNav() {
       <Toolbar sx={{ justifyContent: 'space-between', minHeight: 72 }}>
         <Box>
           <Typography variant="overline" color="text.secondary">
-            Smart Panel
-          </Typography>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            Home Energy
+            Smart Electical Panel
           </Typography>
         </Box>
         <Typography variant="caption" color="text.secondary">
-          Placeholder UI
+          Manage my profile
         </Typography>
       </Toolbar>
     </AppBar>
