@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import {
-  Box,
   Card,
   CardContent,
   Grid,
@@ -8,23 +7,13 @@ import {
   Typography,
   Chip,
 } from '@mui/material';
-import { Bar, Doughnut, Line } from 'react-chartjs-2';
-import {
-  ArcElement,
-  BarElement,
-  CategoryScale,
-  Chart as ChartJS,
-  Legend,
-  LineElement,
-  LinearScale,
-  PointElement,
-  Tooltip,
-} from 'chart.js';
+import type { ChartOptions } from 'chart.js';
 import mockData from '../../data/mockData.json';
 import powerAnalyticsConfig from '../../data/powerAnalyticsConfig.json';
 import { SummaryCard } from './SummaryCard';
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Tooltip, Legend);
+import { ConsumptionShareChart } from './charts/ConsumptionShareChart';
+import { HighestUsageBarChart } from './charts/HighestUsageBarChart';
+import { HouseholdPowerChart } from './charts/HouseholdPowerChart';
 
 type Circuit = {
   id: string;
@@ -174,11 +163,9 @@ export function PowerAnalyticsPanel() {
     ],
   };
 
-  const chartBoxSx = {
-    minHeight: 240,
-    height: 'min(50vh, 800px)',
-    maxHeight: 800,
-  };
+  const lineChartOptions: ChartOptions<'line'> = { responsive: true, maintainAspectRatio: false };
+  const barChartOptions: ChartOptions<'bar'> = { responsive: true, maintainAspectRatio: false, indexAxis: 'y' };
+  const doughnutChartOptions: ChartOptions<'doughnut'> = { responsive: true, maintainAspectRatio: false };
 
   const summaryCardResolvers: Record<
     SummaryCardConfigKey,
@@ -213,14 +200,14 @@ export function PowerAnalyticsPanel() {
     <Card variant="outlined">
       <CardContent>
         <Stack spacing={2}>
-          <Box>
+          <div>
             <Typography variant="h6" sx={{ fontWeight: 700 }} gutterBottom>
               {powerAnalyticsConfig.panel.title}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               {powerAnalyticsConfig.panel.description}
             </Typography>
-          </Box>
+          </div>
 
           <Grid container spacing={1.5}>
             {summaryCards.map((card) => (
@@ -230,26 +217,23 @@ export function PowerAnalyticsPanel() {
             ))}
           </Grid>
 
-          <Box sx={chartBoxSx}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-              {powerAnalyticsConfig.sections.householdPowerOverTime}
-            </Typography>
-            <Line data={lineChartData} options={{ responsive: true, maintainAspectRatio: false }} />
-          </Box>
+          <HouseholdPowerChart
+            title={powerAnalyticsConfig.sections.householdPowerOverTime}
+            data={lineChartData}
+            options={lineChartOptions}
+          />
 
-          <Box sx={chartBoxSx}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-              {powerAnalyticsConfig.sections.highestUsageCircuits}
-            </Typography>
-            <Bar data={barChartData} options={{ responsive: true, maintainAspectRatio: false, indexAxis: 'y' }} />
-          </Box>
+          <HighestUsageBarChart
+            title={powerAnalyticsConfig.sections.highestUsageCircuits}
+            data={barChartData}
+            options={barChartOptions}
+          />
 
-          <Box sx={chartBoxSx}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-              {powerAnalyticsConfig.sections.shareOfTotalConsumption}
-            </Typography>
-            <Doughnut data={doughnutData} options={{ responsive: true, maintainAspectRatio: false }} />
-          </Box>
+          <ConsumptionShareChart
+            title={powerAnalyticsConfig.sections.shareOfTotalConsumption}
+            data={doughnutData}
+            options={doughnutChartOptions}
+          />
 
           <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
             {analytics.topCircuits.map((circuit) => (
