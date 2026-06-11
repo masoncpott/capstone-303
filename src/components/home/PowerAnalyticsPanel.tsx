@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import {
   Box,
   Card,
@@ -7,7 +7,6 @@ import {
   Stack,
   Typography,
   Chip,
-  LinearProgress,
 } from '@mui/material';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import {
@@ -64,49 +63,28 @@ function getCurrentRatePeriod(periods: PricingPeriod[]) {
 }
 
 export function PowerAnalyticsPanel() {
-  const [circuits, setCircuits] = useState<Circuit[]>([]);
-  const [usageHistory, setUsageHistory] = useState<UsagePoint[]>([]);
-  const [pricingPeriods, setPricingPeriods] = useState<PricingPeriod[]>([]);
-  const [loading, setLoading] = useState(true);
+  const circuits: Circuit[] = [
+    { id: '1', name: 'EV Charger', currentWatts: 5500 },
+    { id: '2', name: 'HVAC', currentWatts: 3200 },
+    { id: '4', name: 'Kitchen Outlets', currentWatts: 1200 },
+    { id: '8', name: 'Office', currentWatts: 450 },
+    { id: '10', name: 'Refrigerator', currentWatts: 600 },
+  ];
 
-  useEffect(() => {
-    let cancelled = false;
+  const usageHistory: UsagePoint[] = [
+    { circuitId: '1', timestamp: '2026-06-11T14:00:00Z', watts: 5500, estimatedCost: 2.25 },
+    { circuitId: '2', timestamp: '2026-06-11T14:00:00Z', watts: 3200, estimatedCost: 0.83 },
+    { circuitId: '4', timestamp: '2026-06-11T14:00:00Z', watts: 1200, estimatedCost: 0.31 },
+    { circuitId: '8', timestamp: '2026-06-11T14:00:00Z', watts: 450, estimatedCost: 0.12 },
+    { circuitId: '10', timestamp: '2026-06-11T14:00:00Z', watts: 600, estimatedCost: 0.16 },
+  ];
 
-    async function loadAnalyticsData() {
-      try {
-        const [circuitsResponse, usageResponse, pricingResponse] = await Promise.all([
-          fetch('/api/circuits'),
-          fetch('/api/usage'),
-          fetch('/api/pricing-periods'),
-        ]);
-
-        if (!circuitsResponse.ok || !usageResponse.ok || !pricingResponse.ok) {
-          throw new Error('Failed to load analytics data.');
-        }
-
-        const circuitsPayload = (await circuitsResponse.json()) as { circuits: Circuit[] };
-        const usagePayload = (await usageResponse.json()) as { usageHistory: UsagePoint[] };
-        const pricingPayload = (await pricingResponse.json()) as { pricingPeriods: PricingPeriod[] };
-
-        if (!cancelled) {
-          setCircuits(circuitsPayload.circuits);
-          setUsageHistory(usagePayload.usageHistory);
-          setPricingPeriods(pricingPayload.pricingPeriods);
-          setLoading(false);
-        }
-      } catch {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void loadAnalyticsData();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const pricingPeriods: PricingPeriod[] = [
+    { rateType: 'off_peak', pricePerKwh: 0.18, startTime: '00:00', endTime: '06:00' },
+    { rateType: 'mid_peak', pricePerKwh: 0.26, startTime: '06:00', endTime: '16:00' },
+    { rateType: 'peak', pricePerKwh: 0.41, startTime: '16:00', endTime: '21:00' },
+    { rateType: 'mid_peak', pricePerKwh: 0.22, startTime: '21:00', endTime: '24:00' },
+  ];
 
   const analytics = useMemo(() => {
     const totalUsage = circuits.reduce((sum, circuit) => sum + circuit.currentWatts, 0);
@@ -185,10 +163,6 @@ export function PowerAnalyticsPanel() {
       },
     ],
   };
-
-  if (loading) {
-    return <LinearProgress />;
-  }
 
   const chartBoxSx = {
     minHeight: 240,
