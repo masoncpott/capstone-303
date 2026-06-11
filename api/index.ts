@@ -1,7 +1,6 @@
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import type { Request, Response } from 'express';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -24,28 +23,92 @@ function getDb() {
   return dbData;
 }
 
-export default async (request: Request, response: Response) => {
+function normalizePath(rawPath: string) {
+  const stripped = rawPath.replace(/^\/api/, '');
+  return stripped.length > 0 ? stripped : '/';
+}
+
+function parseJsonBody(request: { body?: unknown }) {
+  if (!request.body) {
+    return {} as Record<string, unknown>;
+  }
+
+  if (typeof request.body === 'string') {
+    try {
+      return JSON.parse(request.body) as Record<string, unknown>;
+    } catch {
+      return {} as Record<string, unknown>;
+    }
+  }
+
+  return request.body as Record<string, unknown>;
+}
+
+export default async (request: { url?: string; method?: string; body?: unknown }, response: { json: (payload: unknown) => unknown; status: (code: number) => { json: (payload: unknown) => unknown } }) => {
   try {
     const db = getDb();
     const url = new URL(request.url || '/', 'http://localhost');
-    const path = url.pathname;
+    const path = normalizePath(url.pathname);
+    const circuitMatch = path.match(/^\/circuits\/([^/]+)$/);
+    const usageByCircuitMatch = path.match(/^\/usage\/circuit\/([^/]+)$/);
+    const schedulesByCircuitMatch = path.match(/^\/schedules\/circuit\/([^/]+)$/);
 
-    // Handle API routes - these will be called as /api/circuits, /api/pricing-periods, etc.
+    // Handle API routes called from the frontend.
     if (path === '/circuits' && request.method === 'GET') {
       return response.json({ circuits: db.circuits });
     }
-    if (path === '/usage' && request.method === 'GET') {
-      return response.json({ usage: db.usage });
+
+    if (circuitMatch && request.method === 'GET') {
+      const circuit = db.circuits.find((item: { id: string }) => item.id === circuitMatch[1]);
+      if (!circuit) {
+        return response.status(404).json({ error: 'Circuit not found' });
+      }
+
+      return response.json({ circuit });
     }
+
+    if (circuitMatch && request.method === 'PATCH') {
+      const index = db.circuits.findIndex((item: { id: string }) => item.id === circuitMatch[1]);
+      if (index < 0) {
+        return response.status(404).json({ error: 'Circuit not found' });
+      }
+
+      const patch = parseJsonBody(request);
+      const nextCircuit = {
+        ...db.circuits[index],
+        ...patch,
+      };
+
+      db.circuits[index] = nextCircuit;
+      return response.json({ circuit: nextCircuit });
+    }
+
+    if (path === '/usage' && request.method === 'GET') {
+      return response.json({ usageHistory: db.usage });
+    }
+
+    if (usageByCircuitMatch && request.method === 'GET') {
+      const usageHistory = db.usage.filter((item: { circuitId: string }) => item.circuitId === usageByCircuitMatch[1]);
+      return response.json({ usageHistory });
+    }
+
     if (path === '/pricing-periods' && request.method === 'GET') {
       return response.json({ pricingPeriods: db['pricing-periods'] });
     }
+
     if (path === '/schedules' && request.method === 'GET') {
       return response.json({ schedules: db.schedules });
     }
+
+    if (schedulesByCircuitMatch && request.method === 'GET') {
+      const schedules = db.schedules.filter((item: { circuitId: string }) => item.circuitId === schedulesByCircuitMatch[1]);
+      return response.json({ schedules });
+    }
+
     if (path === '/modes' && request.method === 'GET') {
       return response.json({ modes: db.modes });
     }
+
     if (path === '/health' && request.method === 'GET') {
       return response.json({ ok: true });
     }
