@@ -180,9 +180,12 @@ export function PowerAnalyticsPanel() {
   }));
 
   return (
-    <Card variant="outlined" sx={{ pb: { xs: 4, sm: 8 } }}>
+    <Card 
+    variant="outlined" 
+    sx={{ pb: { xs: 4, sm: 8 } }}
+    >
       <CardContent>
-        <Stack spacing={4}>
+        {/* <Stack> */}
           <div>
             <Typography variant="h6" sx={{ fontWeight: 700 }} gutterBottom>
               {powerAnalyticsConfig.panel.title}
@@ -202,7 +205,13 @@ export function PowerAnalyticsPanel() {
 
           <ChartTimeframeSelector value={selectedTimeframe} onChange={setSelectedTimeframe} />
 
-          <Stack spacing={8}>
+          <Stack 
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between'
+          }}
+          >
             <HouseholdPowerChart
               title={powerAnalyticsConfig.sections.householdPowerOverTime}
               subtitle={activeRangeTitle}
@@ -223,7 +232,7 @@ export function PowerAnalyticsPanel() {
               data={doughnutData}
             />
           </Stack>
-        </Stack>
+        {/* </Stack> */}
       </CardContent>
     </Card>
   );
