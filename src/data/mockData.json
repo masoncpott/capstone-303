@@ -1,0 +1,27 @@
+{
+  "circuits": [
+    { "id": "1", "name": "EV Charger", "status": "on", "currentWatts": 5500, "category": "EV Charger", "voltage": 240, "room": "Garage", "schedulingEnabled": true },
+    { "id": "2", "name": "HVAC", "status": "on", "currentWatts": 3200, "category": "HVAC", "voltage": 240, "room": "Utility Closet", "schedulingEnabled": false },
+    { "id": "3", "name": "Water Heater", "status": "off", "currentWatts": 0, "category": "Water Heater", "voltage": 240, "room": "Utility Closet", "schedulingEnabled": false },
+    { "id": "4", "name": "Kitchen Outlets", "status": "on", "currentWatts": 1200, "category": "Outlets", "voltage": 120, "room": "Kitchen", "schedulingEnabled": false },
+    { "id": "5", "name": "Oven", "status": "off", "currentWatts": 0, "category": "Oven", "voltage": 240, "room": "Kitchen", "schedulingEnabled": false },
+    { "id": "6", "name": "Dryer", "status": "off", "currentWatts": 0, "category": "Laundry", "voltage": 240, "room": "Laundry Room", "schedulingEnabled": false },
+    { "id": "7", "name": "Basement Lights", "status": "off", "currentWatts": 0, "category": "Lighting", "voltage": 120, "room": "Basement", "schedulingEnabled": false },
+    { "id": "8", "name": "Office", "status": "on", "currentWatts": 450, "category": "Outlets", "voltage": 120, "room": "Office", "schedulingEnabled": false },
+    { "id": "9", "name": "Garage", "status": "off", "currentWatts": 0, "category": "Outlets", "voltage": 120, "room": "Garage", "schedulingEnabled": false },
+    { "id": "10", "name": "Refrigerator", "status": "on", "currentWatts": 600, "category": "Refrigerator", "voltage": 120, "room": "Kitchen", "schedulingEnabled": false }
+  ],
+  "pricingPeriods": [
+    { "id": "1", "startTime": "00:00", "endTime": "06:00", "rateType": "off_peak", "pricePerKwh": 0.18 },
+    { "id": "2", "startTime": "06:00", "endTime": "16:00", "rateType": "mid_peak", "pricePerKwh": 0.26 },
+    { "id": "3", "startTime": "16:00", "endTime": "21:00", "rateType": "peak", "pricePerKwh": 0.41 },
+    { "id": "4", "startTime": "21:00", "endTime": "24:00", "rateType": "mid_peak", "pricePerKwh": 0.22 }
+  ],
+  "usageHistory": [
+    { "circuitId": "1", "timestamp": "2026-06-11T14:00:00Z", "watts": 5500, "estimatedCost": 2.25 },
+    { "circuitId": "2", "timestamp": "2026-06-11T14:00:00Z", "watts": 3200, "estimatedCost": 0.83 },
+    { "circuitId": "4", "timestamp": "2026-06-11T14:00:00Z", "watts": 1200, "estimatedCost": 0.31 },
+    { "circuitId": "8", "timestamp": "2026-06-11T14:00:00Z", "watts": 450, "estimatedCost": 0.12 },
+    { "circuitId": "10", "timestamp": "2026-06-11T14:00:00Z", "watts": 600, "estimatedCost": 0.16 }
+  ]
+}

@@ -1,6 +1,7 @@
 import { Alert, Card, CardContent, Stack, Typography } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { PageContainer } from '../components/layout/PageContainer';
+import mockData from '../data/mockData.json';
 
 type Circuit = {
   id: string;
@@ -13,42 +14,13 @@ type Circuit = {
   schedulingEnabled: boolean;
 };
 
-const HARDCODED_CIRCUITS: Record<string, Circuit> = {
-  '1': {
-    id: '1',
-    name: 'EV Charger',
-    category: 'EV Charger',
-    status: 'on',
-    currentWatts: 5500,
-    voltage: 240,
-    room: 'Garage',
-    schedulingEnabled: true,
-  },
-  '2': {
-    id: '2',
-    name: 'HVAC',
-    category: 'HVAC',
-    status: 'on',
-    currentWatts: 3200,
-    voltage: 240,
-    room: 'Utility Closet',
-    schedulingEnabled: false,
-  },
-  '10': {
-    id: '10',
-    name: 'Refrigerator',
-    category: 'Refrigerator',
-    status: 'on',
-    currentWatts: 600,
-    voltage: 120,
-    room: 'Kitchen',
-    schedulingEnabled: false,
-  },
-};
-
 export function CircuitDetailPage() {
   const { circuitId } = useParams();
-  const circuit = circuitId ? HARDCODED_CIRCUITS[circuitId] : null;
+  const circuitsMap = mockData.circuits.reduce((acc, circuit) => {
+    acc[circuit.id] = circuit as Circuit;
+    return acc;
+  }, {} as Record<string, Circuit>);
+  const circuit = circuitId ? circuitsMap[circuitId] : null;
 
   return (
     <PageContainer>

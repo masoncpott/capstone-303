@@ -20,6 +20,7 @@ import {
   PointElement,
   Tooltip,
 } from 'chart.js';
+import mockData from '../../data/mockData.json';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Tooltip, Legend);
 
@@ -63,28 +64,9 @@ function getCurrentRatePeriod(periods: PricingPeriod[]) {
 }
 
 export function PowerAnalyticsPanel() {
-  const circuits: Circuit[] = [
-    { id: '1', name: 'EV Charger', currentWatts: 5500 },
-    { id: '2', name: 'HVAC', currentWatts: 3200 },
-    { id: '4', name: 'Kitchen Outlets', currentWatts: 1200 },
-    { id: '8', name: 'Office', currentWatts: 450 },
-    { id: '10', name: 'Refrigerator', currentWatts: 600 },
-  ];
-
-  const usageHistory: UsagePoint[] = [
-    { circuitId: '1', timestamp: '2026-06-11T14:00:00Z', watts: 5500, estimatedCost: 2.25 },
-    { circuitId: '2', timestamp: '2026-06-11T14:00:00Z', watts: 3200, estimatedCost: 0.83 },
-    { circuitId: '4', timestamp: '2026-06-11T14:00:00Z', watts: 1200, estimatedCost: 0.31 },
-    { circuitId: '8', timestamp: '2026-06-11T14:00:00Z', watts: 450, estimatedCost: 0.12 },
-    { circuitId: '10', timestamp: '2026-06-11T14:00:00Z', watts: 600, estimatedCost: 0.16 },
-  ];
-
-  const pricingPeriods: PricingPeriod[] = [
-    { rateType: 'off_peak', pricePerKwh: 0.18, startTime: '00:00', endTime: '06:00' },
-    { rateType: 'mid_peak', pricePerKwh: 0.26, startTime: '06:00', endTime: '16:00' },
-    { rateType: 'peak', pricePerKwh: 0.41, startTime: '16:00', endTime: '21:00' },
-    { rateType: 'mid_peak', pricePerKwh: 0.22, startTime: '21:00', endTime: '24:00' },
-  ];
+  const circuits = mockData.circuits.slice(0, 5) as Circuit[];
+  const usageHistory = mockData.usageHistory as UsagePoint[];
+  const pricingPeriods = mockData.pricingPeriods as PricingPeriod[];
 
   const analytics = useMemo(() => {
     const totalUsage = circuits.reduce((sum, circuit) => sum + circuit.currentWatts, 0);

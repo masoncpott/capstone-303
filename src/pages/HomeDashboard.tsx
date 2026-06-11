@@ -6,6 +6,7 @@ import { SummaryCard } from '../components/home/SummaryCard';
 import { QuickActions } from '../components/home/QuickActions';
 import { CircuitGrid } from '../components/home/CircuitGrid';
 import { PowerAnalyticsPanel } from '../components/home/PowerAnalyticsPanel';
+import mockData from '../data/mockData.json';
 
 type Circuit = {
   id: string;
@@ -21,26 +22,6 @@ type PricingPeriod = {
   rateType: 'peak' | 'mid_peak' | 'off_peak';
   pricePerKwh: number;
 };
-
-const HARDCODED_CIRCUITS: Circuit[] = [
-  { id: '1', name: 'EV Charger', status: 'on', currentWatts: 5500 },
-  { id: '2', name: 'HVAC', status: 'on', currentWatts: 3200 },
-  { id: '3', name: 'Water Heater', status: 'off', currentWatts: 0 },
-  { id: '4', name: 'Kitchen Outlets', status: 'on', currentWatts: 1200 },
-  { id: '5', name: 'Oven', status: 'off', currentWatts: 0 },
-  { id: '6', name: 'Dryer', status: 'off', currentWatts: 0 },
-  { id: '7', name: 'Basement Lights', status: 'off', currentWatts: 0 },
-  { id: '8', name: 'Office', status: 'on', currentWatts: 450 },
-  { id: '9', name: 'Garage', status: 'off', currentWatts: 0 },
-  { id: '10', name: 'Refrigerator', status: 'on', currentWatts: 600 },
-];
-
-const HARDCODED_PRICING_PERIODS: PricingPeriod[] = [
-  { id: '1', startTime: '00:00', endTime: '06:00', rateType: 'off_peak', pricePerKwh: 0.18 },
-  { id: '2', startTime: '06:00', endTime: '16:00', rateType: 'mid_peak', pricePerKwh: 0.26 },
-  { id: '3', startTime: '16:00', endTime: '21:00', rateType: 'peak', pricePerKwh: 0.41 },
-  { id: '4', startTime: '21:00', endTime: '24:00', rateType: 'mid_peak', pricePerKwh: 0.22 },
-];
 
 function resolveCurrentRatePeriod(pricingPeriods: PricingPeriod[]) {
   const currentHour = new Date().getHours();
@@ -58,8 +39,8 @@ function resolveCurrentRatePeriod(pricingPeriods: PricingPeriod[]) {
 }
 
 export function HomeDashboard() {
-  const circuits = HARDCODED_CIRCUITS;
-  const pricingPeriods = HARDCODED_PRICING_PERIODS;
+  const circuits = mockData.circuits as Circuit[];
+  const pricingPeriods = mockData.pricingPeriods as PricingPeriod[];
 
   const totalUsageKw = useMemo(() => circuits.reduce((sum, circuit) => sum + circuit.currentWatts, 0) / 1000, [circuits]);
   const currentRatePeriod = useMemo(() => resolveCurrentRatePeriod(pricingPeriods), [pricingPeriods]);

@@ -16,7 +16,7 @@ export function BottomNavigation() {
           label="Circuits"
           value="circuits"
           icon={<BatteryChargingFull />}
-          onClick={() => navigate('/circuits/ev-charger')}
+          onClick={() => navigate('/circuits')}
         />
         <BottomNavigationAction label="Analytics" value="analytics" icon={<Insights />} disabled />
       </MuiBottomNavigation>
