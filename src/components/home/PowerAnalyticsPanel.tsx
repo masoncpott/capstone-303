@@ -190,6 +190,12 @@ export function PowerAnalyticsPanel() {
     return <LinearProgress />;
   }
 
+  const chartBoxSx = {
+    minHeight: 240,
+    height: 'min(50vh, 800px)',
+    maxHeight: 800,
+  };
+
   return (
     <Card variant="outlined">
       <CardContent>
@@ -249,21 +255,21 @@ export function PowerAnalyticsPanel() {
             </Grid>
           </Grid>
 
-          <Box sx={{ minHeight: 240 }}>
+          <Box sx={chartBoxSx}>
             <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
               Household Power Over Time
             </Typography>
             <Line data={lineChartData} options={{ responsive: true, maintainAspectRatio: false }} />
           </Box>
 
-          <Box sx={{ minHeight: 220 }}>
+          <Box sx={chartBoxSx}>
             <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
               Highest Usage Circuits
             </Typography>
             <Bar data={barChartData} options={{ responsive: true, maintainAspectRatio: false, indexAxis: 'y' }} />
           </Box>
 
-          <Box sx={{ minHeight: 240 }}>
+          <Box sx={chartBoxSx}>
             <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
               Share of Total Consumption
             </Typography>
