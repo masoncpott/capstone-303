@@ -10,6 +10,7 @@ import {
 import type { ChartOptions } from 'chart.js';
 import mockData from '../../data/mockData.json';
 import powerAnalyticsConfig from '../../data/powerAnalyticsConfig.json';
+import { buildLineChartData, buildRecentHourlyWattsSeries, sharedLineChartOptions } from '../../utils/lineChart';
 import { SummaryCard } from './SummaryCard';
 import { ConsumptionShareChart } from './charts/ConsumptionShareChart';
 import { HighestUsageBarChart } from './charts/HighestUsageBarChart';
@@ -50,11 +51,6 @@ type SummaryCardViewModel = {
   subtitle?: string;
 };
 
-function getCurrentHourLabel(timestamp: string) {
-  const date = new Date(timestamp);
-  return date.toLocaleDateString() + ' ' + date.getUTCHours().toString().padStart(2, '0') + ':00';
-}
-
 function getCurrentRatePeriod(periods: PricingPeriod[]) {
   const currentHour = new Date().getHours();
 
@@ -78,27 +74,12 @@ export function PowerAnalyticsPanel() {
   const analytics = useMemo(() => {
     const totalUsage = circuits.reduce((sum, circuit) => sum + circuit.currentWatts, 0);
     const currentRatePeriod = getCurrentRatePeriod(pricingPeriods);
-    
-    // Group usage history by timestamp to get total household usage per hour
-    const hourlyTotalsMap = new Map<string, number>();
     const circuitUsageMap = new Map<string, number>();
 
     for (const point of usageHistory) {
-      const fullLabel = getCurrentHourLabel(point.timestamp);
-      hourlyTotalsMap.set(fullLabel, (hourlyTotalsMap.get(fullLabel) ?? 0) + point.watts);
       circuitUsageMap.set(point.circuitId, (circuitUsageMap.get(point.circuitId) ?? 0) + point.watts);
     }
-
-    // Get the last 24 hours of data, sorted chronologically
-    const recentHours = Array.from(hourlyTotalsMap.entries())
-      .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
-      .slice(-24);
-    
-    const hourlyLabels = recentHours.map((entry) => {
-      const date = new Date(entry[0]);
-      return `${date.getUTCHours().toString().padStart(2, '0')}:00`;
-    });
-    const hourlyValues = recentHours.map((entry) => entry[1]);
+    const hourlySeries = buildRecentHourlyWattsSeries(usageHistory, 24);
 
     const topCircuits = circuits
       .map((circuit) => ({
@@ -118,8 +99,8 @@ export function PowerAnalyticsPanel() {
     return {
       totalUsage,
       currentRatePeriod,
-      hourlyLabels,
-      hourlyValues,
+      hourlyLabels: hourlySeries.labels,
+      hourlyValues: hourlySeries.values,
       topCircuits,
       doughnutLabels,
       doughnutValues,
@@ -128,19 +109,12 @@ export function PowerAnalyticsPanel() {
     };
   }, [circuits, usageHistory, pricingPeriods]);
 
-  const lineChartData = {
-    labels: analytics.hourlyLabels,
-    datasets: [
-      {
-        label: powerAnalyticsConfig.charts.line.label,
-        data: analytics.hourlyValues,
-        borderColor: powerAnalyticsConfig.charts.line.borderColor,
-        backgroundColor: powerAnalyticsConfig.charts.line.backgroundColor,
-        tension: powerAnalyticsConfig.charts.line.tension,
-        fill: true,
-      },
-    ],
-  };
+  const lineChartData = buildLineChartData(analytics.hourlyLabels, analytics.hourlyValues, {
+    label: powerAnalyticsConfig.charts.line.label,
+    borderColor: powerAnalyticsConfig.charts.line.borderColor,
+    backgroundColor: powerAnalyticsConfig.charts.line.backgroundColor,
+    tension: powerAnalyticsConfig.charts.line.tension,
+  });
 
   const barChartData = {
     labels: analytics.topCircuits.map((circuit) => circuit.name),
@@ -163,7 +137,7 @@ export function PowerAnalyticsPanel() {
     ],
   };
 
-  const lineChartOptions: ChartOptions<'line'> = { responsive: true, maintainAspectRatio: false };
+  const lineChartOptions: ChartOptions<'line'> = sharedLineChartOptions;
   const barChartOptions: ChartOptions<'bar'> = { responsive: true, maintainAspectRatio: false, indexAxis: 'y' };
   const doughnutChartOptions: ChartOptions<'doughnut'> = { responsive: true, maintainAspectRatio: false };
 

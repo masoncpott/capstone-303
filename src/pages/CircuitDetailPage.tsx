@@ -6,6 +6,8 @@ import { HouseholdPowerChart } from '../components/home/charts/HouseholdPowerCha
 import { SummaryCard } from '../components/home/SummaryCard';
 import { PageContainer } from '../components/layout/PageContainer';
 import mockData from '../data/mockData.json';
+import powerAnalyticsConfig from '../data/powerAnalyticsConfig.json';
+import { buildLineChartData, buildRecentHourlyWattsSeries, sharedLineChartOptions } from '../utils/lineChart';
 
 type Circuit = {
   id: string;
@@ -24,11 +26,6 @@ type UsagePoint = {
   watts: number;
   estimatedCost: number;
 };
-
-function formatHourLabel(timestamp: string) {
-  const date = new Date(timestamp);
-  return `${date.getUTCHours().toString().padStart(2, '0')}:00`;
-}
 
 export function CircuitDetailPage() {
   const { circuitId } = useParams();
@@ -53,37 +50,28 @@ export function CircuitDetailPage() {
       .slice()
       .sort((left, right) => new Date(left.timestamp).getTime() - new Date(right.timestamp).getTime())
       .slice(-24);
-
-    const hourlyLabels = recentPoints.map((point) => formatHourLabel(point.timestamp));
-    const hourlyValues = recentPoints.map((point) => point.watts);
+    const hourlySeries = buildRecentHourlyWattsSeries(recentPoints, 24);
     const averageWatts = Math.round(circuitUsage.reduce((sum, point) => sum + point.watts, 0) / circuitUsage.length);
     const peakWatts = Math.max(...circuitUsage.map((point) => point.watts));
     const monthlyCostEstimate = circuitUsage.reduce((sum, point) => sum + point.estimatedCost, 0) / 3;
 
     return {
-      hourlyLabels,
-      hourlyValues,
+      hourlyLabels: hourlySeries.labels,
+      hourlyValues: hourlySeries.values,
       averageWatts,
       peakWatts,
       monthlyCostEstimate,
     };
   }, [circuitId, usageHistory]);
 
-  const lineChartData = {
-    labels: analytics?.hourlyLabels ?? [],
-    datasets: [
-      {
-        label: circuit ? `${circuit.name} Power` : 'Circuit Power',
-        data: analytics?.hourlyValues ?? [],
-        borderColor: '#1452cc',
-        backgroundColor: 'rgba(20, 82, 204, 0.18)',
-        tension: 0.35,
-        fill: true,
-      },
-    ],
-  };
+  const lineChartData = buildLineChartData(analytics?.hourlyLabels ?? [], analytics?.hourlyValues ?? [], {
+    label: circuit ? `${circuit.name} Power` : 'Circuit Power',
+    borderColor: powerAnalyticsConfig.charts.line.borderColor,
+    backgroundColor: powerAnalyticsConfig.charts.line.backgroundColor,
+    tension: powerAnalyticsConfig.charts.line.tension,
+  });
 
-  const lineChartOptions: ChartOptions<'line'> = { responsive: true, maintainAspectRatio: false };
+  const lineChartOptions: ChartOptions<'line'> = sharedLineChartOptions;
 
   return (
     <PageContainer>
