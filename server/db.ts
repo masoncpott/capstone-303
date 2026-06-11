@@ -15,7 +15,9 @@ import type {
 
 sqlite3.verbose();
 
-const databasePath = join(process.cwd(), 'server', 'data', 'capstone.sqlite');
+const defaultDatabaseDir = process.env.VERCEL ? '/tmp/capstone-303' : join(process.cwd(), 'server', 'data');
+const databaseDir = process.env.DB_DIR ?? defaultDatabaseDir;
+const databasePath = join(databaseDir, 'capstone.sqlite');
 mkdirSync(dirname(databasePath), { recursive: true });
 
 const database = new sqlite3.Database(databasePath);
