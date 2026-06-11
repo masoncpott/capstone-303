@@ -8,7 +8,11 @@ type ChartTimeframeSelectorProps = {
 
 export function ChartTimeframeSelector({ value, onChange }: ChartTimeframeSelectorProps) {
   return (
-    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ xs: 'flex-start', sm: 'center' }}>
+    <Stack 
+        direction={{ xs: 'column', sm: 'row' }} 
+        spacing={1} 
+        sx={{ alignItems: { xs: 'flex-start', sm: 'center' } }}
+    >
       <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
         Time range
       </Typography>
