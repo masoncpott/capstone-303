@@ -21,6 +21,7 @@ import {
   Tooltip,
 } from 'chart.js';
 import mockData from '../../data/mockData.json';
+import { SummaryCard } from './SummaryCard';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Tooltip, Legend);
 
@@ -47,10 +48,6 @@ type PricingPeriod = {
 function getCurrentHourLabel(timestamp: string) {
   const date = new Date(timestamp);
   return date.toLocaleDateString() + ' ' + date.getUTCHours().toString().padStart(2, '0') + ':00';
-}
-
-function getHourOnly(timestamp: string) {
-  return new Date(timestamp).getUTCHours().toString().padStart(2, '0') + ':00';
 }
 
 function getCurrentRatePeriod(periods: PricingPeriod[]) {
@@ -167,6 +164,31 @@ export function PowerAnalyticsPanel() {
     maxHeight: 800,
   };
 
+  const summaryCards = [
+    {
+      title: 'Current Usage',
+      value: `${(analytics.totalUsage / 1000).toFixed(1)} kW`,
+      subtitle: `${circuits.length} tracked circuits`,
+    },
+    {
+      title: 'Estimated Monthly Bill',
+      value: `$${analytics.estimatedMonthlyBill.toFixed(0)}`,
+      subtitle: 'Based on recent hourly usage',
+    },
+    {
+      title: 'Rate Period',
+      value: (analytics.currentRatePeriod?.rateType ?? 'unknown').replace('_', ' '),
+      subtitle: analytics.currentRatePeriod
+        ? `${analytics.currentRatePeriod.startTime} - ${analytics.currentRatePeriod.endTime}`
+        : 'No pricing period loaded',
+    },
+    {
+      title: 'Potential Savings',
+      value: `$${analytics.potentialSavings.toFixed(2)}`,
+      subtitle: 'If shifted to cheapest period',
+    },
+  ];
+
   return (
     <Card variant="outlined">
       <CardContent>
@@ -181,49 +203,11 @@ export function PowerAnalyticsPanel() {
           </Box>
 
           <Grid container spacing={1.5}>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <Card variant="outlined" sx={{ p: 1.5 }}>
-                <Typography variant="overline" color="text.secondary">
-                  Current Usage
-                </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 800 }}>
-                  {(analytics.totalUsage / 1000).toFixed(1)} kW
-                </Typography>
-              </Card>
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <Card variant="outlined" sx={{ p: 1.5 }}>
-                <Typography variant="overline" color="text.secondary">
-                  Estimated Monthly Bill
-                </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 800 }}>
-                  ${analytics.estimatedMonthlyBill.toFixed(0)}
-                </Typography>
-              </Card>
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <Card variant="outlined" sx={{ p: 1.5 }}>
-                <Typography variant="overline" color="text.secondary">
-                  Rate Period
-                </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                  {analytics.currentRatePeriod?.rateType ?? 'unknown'}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {analytics.currentRatePeriod ? `${analytics.currentRatePeriod.startTime} - ${analytics.currentRatePeriod.endTime}` : 'No pricing period loaded'}
-                </Typography>
-              </Card>
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <Card variant="outlined" sx={{ p: 1.5 }}>
-                <Typography variant="overline" color="text.secondary">
-                  Potential Savings
-                </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                  ${analytics.potentialSavings.toFixed(2)}
-                </Typography>
-              </Card>
-            </Grid>
+            {summaryCards.map((card) => (
+              <Grid key={card.title} size={{ xs: 12, sm: 6 }}>
+                <SummaryCard title={card.title} value={card.value} subtitle={card.subtitle} />
+              </Grid>
+            ))}
           </Grid>
 
           <Box sx={chartBoxSx}>
