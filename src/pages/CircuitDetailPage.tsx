@@ -1,13 +1,21 @@
 import { Alert, Card, CardContent, Grid, Stack, Typography } from '@mui/material';
 import type { ChartOptions } from 'chart.js';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { ChartTimeframeSelector } from '../components/home/charts/ChartTimeframeSelector';
 import { HouseholdPowerChart } from '../components/home/charts/HouseholdPowerChart';
 import { SummaryCard } from '../components/home/SummaryCard';
 import { PageContainer } from '../components/layout/PageContainer';
 import mockData from '../data/mockData.json';
 import powerAnalyticsConfig from '../data/powerAnalyticsConfig.json';
-import { buildLineChartData, buildRecentHourlyWattsSeries, sharedLineChartOptions } from '../utils/lineChart';
+import {
+  buildLineChartData,
+  buildTimeframeWattsSeries,
+  ChartTimeframe,
+  filterPointsByTimeframe,
+  getChartTimeframeLabel,
+  sharedLineChartOptions,
+} from '../utils/lineChart';
 
 type Circuit = {
   id: string;
@@ -28,6 +36,8 @@ type UsagePoint = {
 };
 
 export function CircuitDetailPage() {
+  const [selectedTimeframe, setSelectedTimeframe] = useState<ChartTimeframe>('1d');
+  const activeRangeTitle = `Active range: ${getChartTimeframeLabel(selectedTimeframe)}`;
   const { circuitId } = useParams();
   const circuitsMap = mockData.circuits.reduce((acc, circuit) => {
     acc[circuit.id] = circuit as Circuit;
@@ -46,14 +56,15 @@ export function CircuitDetailPage() {
       return null;
     }
 
-    const recentPoints = circuitUsage
-      .slice()
-      .sort((left, right) => new Date(left.timestamp).getTime() - new Date(right.timestamp).getTime())
-      .slice(-24);
-    const hourlySeries = buildRecentHourlyWattsSeries(recentPoints, 24);
-    const averageWatts = Math.round(circuitUsage.reduce((sum, point) => sum + point.watts, 0) / circuitUsage.length);
-    const peakWatts = Math.max(...circuitUsage.map((point) => point.watts));
-    const monthlyCostEstimate = circuitUsage.reduce((sum, point) => sum + point.estimatedCost, 0) / 3;
+    const filteredUsage = filterPointsByTimeframe(circuitUsage, selectedTimeframe);
+    if (filteredUsage.length === 0) {
+      return null;
+    }
+
+    const hourlySeries = buildTimeframeWattsSeries(filteredUsage, selectedTimeframe);
+    const averageWatts = Math.round(filteredUsage.reduce((sum, point) => sum + point.watts, 0) / filteredUsage.length);
+    const peakWatts = Math.max(...filteredUsage.map((point) => point.watts));
+    const monthlyCostEstimate = filteredUsage.reduce((sum, point) => sum + point.estimatedCost, 0) * 30;
 
     return {
       hourlyLabels: hourlySeries.labels,
@@ -62,7 +73,7 @@ export function CircuitDetailPage() {
       peakWatts,
       monthlyCostEstimate,
     };
-  }, [circuitId, usageHistory]);
+  }, [circuitId, usageHistory, selectedTimeframe]);
 
   const lineChartData = buildLineChartData(analytics?.hourlyLabels ?? [], analytics?.hourlyValues ?? [], {
     label: circuit ? `${circuit.name} Power` : 'Circuit Power',
@@ -110,8 +121,11 @@ export function CircuitDetailPage() {
                 </Grid>
               </Grid>
 
+              <ChartTimeframeSelector value={selectedTimeframe} onChange={setSelectedTimeframe} />
+
               <HouseholdPowerChart
                 title={`${circuit.name} Power Over Time`}
+                subtitle={activeRangeTitle}
                 data={lineChartData}
                 options={lineChartOptions}
               />

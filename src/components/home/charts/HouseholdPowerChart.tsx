@@ -5,6 +5,7 @@ import './registerCharts';
 
 type HouseholdPowerChartProps = {
   title: string;
+  subtitle?: string;
   data: ChartData<'line'>;
   options?: ChartOptions<'line'>;
 };
@@ -15,12 +16,17 @@ const chartBoxSx = {
   maxHeight: 800,
 };
 
-export function HouseholdPowerChart({ title, data, options }: HouseholdPowerChartProps) {
+export function HouseholdPowerChart({ title, subtitle, data, options }: HouseholdPowerChartProps) {
   return (
     <Box sx={chartBoxSx}>
       <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
         {title}
       </Typography>
+      {subtitle ? (
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+          {subtitle}
+        </Typography>
+      ) : null}
       <Line data={data} options={options} />
     </Box>
   );

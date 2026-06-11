@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -10,8 +10,16 @@ import {
 import type { ChartOptions } from 'chart.js';
 import mockData from '../../data/mockData.json';
 import powerAnalyticsConfig from '../../data/powerAnalyticsConfig.json';
-import { buildLineChartData, buildRecentHourlyWattsSeries, sharedLineChartOptions } from '../../utils/lineChart';
+import {
+  buildLineChartData,
+  buildTimeframeWattsSeries,
+  ChartTimeframe,
+  filterPointsByTimeframe,
+  getChartTimeframeLabel,
+  sharedLineChartOptions,
+} from '../../utils/lineChart';
 import { SummaryCard } from './SummaryCard';
+import { ChartTimeframeSelector } from './charts/ChartTimeframeSelector';
 import { ConsumptionShareChart } from './charts/ConsumptionShareChart';
 import { HighestUsageBarChart } from './charts/HighestUsageBarChart';
 import { HouseholdPowerChart } from './charts/HouseholdPowerChart';
@@ -67,19 +75,22 @@ function getCurrentRatePeriod(periods: PricingPeriod[]) {
 }
 
 export function PowerAnalyticsPanel() {
+  const [selectedTimeframe, setSelectedTimeframe] = useState<ChartTimeframe>('1d');
+  const activeRangeTitle = `Active range: ${getChartTimeframeLabel(selectedTimeframe)}`;
   const circuits = mockData.circuits.slice(0, 5) as Circuit[];
   const usageHistory = mockData.usageHistory as UsagePoint[];
   const pricingPeriods = mockData.pricingPeriods as PricingPeriod[];
 
   const analytics = useMemo(() => {
+    const filteredUsageHistory = filterPointsByTimeframe(usageHistory, selectedTimeframe);
     const totalUsage = circuits.reduce((sum, circuit) => sum + circuit.currentWatts, 0);
     const currentRatePeriod = getCurrentRatePeriod(pricingPeriods);
     const circuitUsageMap = new Map<string, number>();
 
-    for (const point of usageHistory) {
+    for (const point of filteredUsageHistory) {
       circuitUsageMap.set(point.circuitId, (circuitUsageMap.get(point.circuitId) ?? 0) + point.watts);
     }
-    const hourlySeries = buildRecentHourlyWattsSeries(usageHistory, 24);
+    const hourlySeries = buildTimeframeWattsSeries(usageHistory, selectedTimeframe);
 
     const topCircuits = circuits
       .map((circuit) => ({
@@ -89,10 +100,10 @@ export function PowerAnalyticsPanel() {
       .sort((left, right) => right.usage - left.usage)
       .slice(0, 5);
 
-    const doughnutLabels = circuits.slice(0, 5).map((circuit) => circuit.name);
-    const doughnutValues = circuits.slice(0, 5).map((circuit) => circuit.currentWatts);
+    const doughnutLabels = topCircuits.map((circuit) => circuit.name);
+    const doughnutValues = topCircuits.map((circuit) => circuit.usage);
 
-    const estimatedMonthlyBill = usageHistory.reduce((sum, point) => sum + point.estimatedCost, 0) * 30;
+    const estimatedMonthlyBill = filteredUsageHistory.reduce((sum, point) => sum + point.estimatedCost, 0) * 30;
     const cheapestRate = pricingPeriods.reduce((lowest, period) => Math.min(lowest, period.pricePerKwh), Infinity);
     const potentialSavings = currentRatePeriod ? Math.max(0, (currentRatePeriod.pricePerKwh - cheapestRate) * 75) : 0;
 
@@ -107,7 +118,7 @@ export function PowerAnalyticsPanel() {
       estimatedMonthlyBill,
       potentialSavings,
     };
-  }, [circuits, usageHistory, pricingPeriods]);
+  }, [circuits, usageHistory, pricingPeriods, selectedTimeframe]);
 
   const lineChartData = buildLineChartData(analytics.hourlyLabels, analytics.hourlyValues, {
     label: powerAnalyticsConfig.charts.line.label,
@@ -191,20 +202,25 @@ export function PowerAnalyticsPanel() {
             ))}
           </Grid>
 
+          <ChartTimeframeSelector value={selectedTimeframe} onChange={setSelectedTimeframe} />
+
           <HouseholdPowerChart
             title={powerAnalyticsConfig.sections.householdPowerOverTime}
+            subtitle={activeRangeTitle}
             data={lineChartData}
             options={lineChartOptions}
           />
 
           <HighestUsageBarChart
             title={powerAnalyticsConfig.sections.highestUsageCircuits}
+            subtitle={activeRangeTitle}
             data={barChartData}
             options={barChartOptions}
           />
 
           <ConsumptionShareChart
             title={powerAnalyticsConfig.sections.shareOfTotalConsumption}
+            subtitle={activeRangeTitle}
             data={doughnutData}
             options={doughnutChartOptions}
           />

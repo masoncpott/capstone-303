@@ -5,6 +5,7 @@ import './registerCharts';
 
 type ConsumptionShareChartProps = {
   title: string;
+  subtitle?: string;
   data: ChartData<'doughnut'>;
   options?: ChartOptions<'doughnut'>;
 };
@@ -15,12 +16,17 @@ const chartBoxSx = {
   maxHeight: 800,
 };
 
-export function ConsumptionShareChart({ title, data, options }: ConsumptionShareChartProps) {
+export function ConsumptionShareChart({ title, subtitle, data, options }: ConsumptionShareChartProps) {
   return (
     <Box sx={chartBoxSx}>
       <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
         {title}
       </Typography>
+      {subtitle ? (
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+          {subtitle}
+        </Typography>
+      ) : null}
       <Doughnut data={data} options={options} />
     </Box>
   );

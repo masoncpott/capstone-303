@@ -5,6 +5,7 @@ import './registerCharts';
 
 type HighestUsageBarChartProps = {
   title: string;
+  subtitle?: string;
   data: ChartData<'bar'>;
   options?: ChartOptions<'bar'>;
 };
@@ -15,12 +16,17 @@ const chartBoxSx = {
   maxHeight: 800,
 };
 
-export function HighestUsageBarChart({ title, data, options }: HighestUsageBarChartProps) {
+export function HighestUsageBarChart({ title, subtitle, data, options }: HighestUsageBarChartProps) {
   return (
     <Box sx={chartBoxSx}>
       <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
         {title}
       </Typography>
+      {subtitle ? (
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+          {subtitle}
+        </Typography>
+      ) : null}
       <Bar data={data} options={options} />
     </Box>
   );
