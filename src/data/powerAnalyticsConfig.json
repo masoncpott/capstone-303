@@ -1,0 +1,48 @@
+{
+  "panel": {
+    "title": "Power Analytics",
+    "description": "Current household usage, rate status, and the circuits driving the bill."
+  },
+  "sections": {
+    "householdPowerOverTime": "Household Power Over Time",
+    "highestUsageCircuits": "Highest Usage Circuits",
+    "shareOfTotalConsumption": "Share of Total Consumption"
+  },
+  "summaryCards": [
+    {
+      "key": "currentUsage",
+      "title": "Current Usage",
+      "subtitle": "{count} tracked circuits"
+    },
+    {
+      "key": "estimatedMonthlyBill",
+      "title": "Estimated Monthly Bill",
+      "subtitle": "Based on recent hourly usage"
+    },
+    {
+      "key": "ratePeriod",
+      "title": "Rate Period",
+      "subtitleFallback": "No pricing period loaded"
+    },
+    {
+      "key": "potentialSavings",
+      "title": "Potential Savings",
+      "subtitle": "If shifted to cheapest period"
+    }
+  ],
+  "charts": {
+    "line": {
+      "label": "Household Power",
+      "borderColor": "#1452cc",
+      "backgroundColor": "rgba(20, 82, 204, 0.18)",
+      "tension": 0.35
+    },
+    "bar": {
+      "label": "Watts",
+      "backgroundColor": "#00a389"
+    },
+    "doughnut": {
+      "backgroundColor": ["#1452cc", "#00a389", "#ffb020", "#6b7cff", "#95a4b8"]
+    }
+  }
+}

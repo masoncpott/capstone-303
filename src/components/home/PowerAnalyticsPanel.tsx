@@ -21,6 +21,7 @@ import {
   Tooltip,
 } from 'chart.js';
 import mockData from '../../data/mockData.json';
+import powerAnalyticsConfig from '../../data/powerAnalyticsConfig.json';
 import { SummaryCard } from './SummaryCard';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Tooltip, Legend);
@@ -43,6 +44,21 @@ type PricingPeriod = {
   pricePerKwh: number;
   startTime: string;
   endTime: string;
+};
+
+type SummaryCardConfigKey = 'currentUsage' | 'estimatedMonthlyBill' | 'ratePeriod' | 'potentialSavings';
+
+type SummaryCardConfig = {
+  key: SummaryCardConfigKey;
+  title: string;
+  subtitle?: string;
+  subtitleFallback?: string;
+};
+
+type SummaryCardViewModel = {
+  title: string;
+  value: string;
+  subtitle?: string;
 };
 
 function getCurrentHourLabel(timestamp: string) {
@@ -127,11 +143,11 @@ export function PowerAnalyticsPanel() {
     labels: analytics.hourlyLabels,
     datasets: [
       {
-        label: 'Household Power',
+        label: powerAnalyticsConfig.charts.line.label,
         data: analytics.hourlyValues,
-        borderColor: '#1452cc',
-        backgroundColor: 'rgba(20, 82, 204, 0.18)',
-        tension: 0.35,
+        borderColor: powerAnalyticsConfig.charts.line.borderColor,
+        backgroundColor: powerAnalyticsConfig.charts.line.backgroundColor,
+        tension: powerAnalyticsConfig.charts.line.tension,
         fill: true,
       },
     ],
@@ -141,9 +157,9 @@ export function PowerAnalyticsPanel() {
     labels: analytics.topCircuits.map((circuit) => circuit.name),
     datasets: [
       {
-        label: 'Watts',
+        label: powerAnalyticsConfig.charts.bar.label,
         data: analytics.topCircuits.map((circuit) => circuit.usage),
-        backgroundColor: '#00a389',
+        backgroundColor: powerAnalyticsConfig.charts.bar.backgroundColor,
       },
     ],
   };
@@ -153,7 +169,7 @@ export function PowerAnalyticsPanel() {
     datasets: [
       {
         data: analytics.doughnutValues,
-        backgroundColor: ['#1452cc', '#00a389', '#ffb020', '#6b7cff', '#95a4b8'],
+        backgroundColor: powerAnalyticsConfig.charts.doughnut.backgroundColor,
       },
     ],
   };
@@ -164,30 +180,34 @@ export function PowerAnalyticsPanel() {
     maxHeight: 800,
   };
 
-  const summaryCards = [
-    {
-      title: 'Current Usage',
+  const summaryCardResolvers: Record<
+    SummaryCardConfigKey,
+    (cardConfig: SummaryCardConfig) => Omit<SummaryCardViewModel, 'title'>
+  > = {
+    currentUsage: (cardConfig) => ({
       value: `${(analytics.totalUsage / 1000).toFixed(1)} kW`,
-      subtitle: `${circuits.length} tracked circuits`,
-    },
-    {
-      title: 'Estimated Monthly Bill',
+      subtitle: (cardConfig.subtitle ?? '').replace('{count}', String(circuits.length)),
+    }),
+    estimatedMonthlyBill: (cardConfig) => ({
       value: `$${analytics.estimatedMonthlyBill.toFixed(0)}`,
-      subtitle: 'Based on recent hourly usage',
-    },
-    {
-      title: 'Rate Period',
+      subtitle: cardConfig.subtitle,
+    }),
+    ratePeriod: (cardConfig) => ({
       value: (analytics.currentRatePeriod?.rateType ?? 'unknown').replace('_', ' '),
       subtitle: analytics.currentRatePeriod
         ? `${analytics.currentRatePeriod.startTime} - ${analytics.currentRatePeriod.endTime}`
-        : 'No pricing period loaded',
-    },
-    {
-      title: 'Potential Savings',
+        : cardConfig.subtitleFallback,
+    }),
+    potentialSavings: (cardConfig) => ({
       value: `$${analytics.potentialSavings.toFixed(2)}`,
-      subtitle: 'If shifted to cheapest period',
-    },
-  ];
+      subtitle: cardConfig.subtitle,
+    }),
+  };
+
+  const summaryCards: SummaryCardViewModel[] = (powerAnalyticsConfig.summaryCards as SummaryCardConfig[]).map((cardConfig) => ({
+    title: cardConfig.title,
+    ...summaryCardResolvers[cardConfig.key](cardConfig),
+  }));
 
   return (
     <Card variant="outlined">
@@ -195,10 +215,10 @@ export function PowerAnalyticsPanel() {
         <Stack spacing={2}>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 700 }} gutterBottom>
-              Power Analytics
+              {powerAnalyticsConfig.panel.title}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Current household usage, rate status, and the circuits driving the bill.
+              {powerAnalyticsConfig.panel.description}
             </Typography>
           </Box>
 
@@ -212,21 +232,21 @@ export function PowerAnalyticsPanel() {
 
           <Box sx={chartBoxSx}>
             <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-              Household Power Over Time
+              {powerAnalyticsConfig.sections.householdPowerOverTime}
             </Typography>
             <Line data={lineChartData} options={{ responsive: true, maintainAspectRatio: false }} />
           </Box>
 
           <Box sx={chartBoxSx}>
             <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-              Highest Usage Circuits
+              {powerAnalyticsConfig.sections.highestUsageCircuits}
             </Typography>
             <Bar data={barChartData} options={{ responsive: true, maintainAspectRatio: false, indexAxis: 'y' }} />
           </Box>
 
           <Box sx={chartBoxSx}>
             <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-              Share of Total Consumption
+              {powerAnalyticsConfig.sections.shareOfTotalConsumption}
             </Typography>
             <Doughnut data={doughnutData} options={{ responsive: true, maintainAspectRatio: false }} />
           </Box>
