@@ -39,11 +39,31 @@ if (existsSync(resolve(frontendDistDir, 'index.html'))) {
 }
 
 async function bootstrap() {
-  await initializeDatabase();
+  try {
+    console.log('[BOOTSTRAP] Starting initialization...');
+    await initializeDatabase();
+    console.log('[BOOTSTRAP] Database initialized, starting Express server...');
 
-  app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
-  });
+    const server = app.listen(port, () => {
+      console.log(`[BOOTSTRAP] Server listening on port ${port}`);
+    });
+
+    server.on('error', (err) => {
+      console.error('[SERVER ERROR]', err);
+    });
+
+    process.on('uncaughtException', (err) => {
+      console.error('[UNCAUGHT EXCEPTION]', err);
+    });
+
+    process.on('unhandledRejection', (reason) => {
+      console.error('[UNHANDLED REJECTION]', reason);
+    });
+  } catch (error) {
+    console.error('[BOOTSTRAP FAILED]', error);
+    process.exitCode = 1;
+  }
 }
 
+console.log('[MAIN] Starting application...');
 void bootstrap();
